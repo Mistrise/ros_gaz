@@ -1,5 +1,7 @@
 import {useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
+import Container from "../components/Container/Container.tsx";
+import PostCard from "../components/PostCard/PostCard.tsx";
 
 export interface Post {
     userId: number
@@ -11,7 +13,7 @@ export interface Post {
 const Post = () => {
     const [post, setPost] = useState<Post>()
 
-    let { postId} = useParams()
+    const { postId} = useParams()
 
     useEffect( () => {
         const getPostData = async () => {
@@ -26,15 +28,12 @@ const Post = () => {
 
     return (
         <>
-        {post === undefined ? <div>loading</div>  :
-            <div>
-                title is:
-                {post?.title}
-
-                body is:
-                {post?.body}
-            </div>
-        }
+            <Container>
+                {post === undefined ?
+                    <div>loading</div>  :
+                    <PostCard title={post.title} body={post.body}/>
+                }
+            </Container>
         </>
     );
 };

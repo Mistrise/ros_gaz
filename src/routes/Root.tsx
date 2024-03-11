@@ -1,5 +1,7 @@
 import {useCallback, useEffect, useState} from "react";
-import {Link} from "react-router-dom";
+import Container from "../components/Container/Container.tsx";
+import PostList from "../components/PostsList/PostList.tsx";
+import PostListItem from "../components/PostListItem/PostListItem.tsx";
 
 export interface Post {
     userId: number
@@ -12,6 +14,8 @@ export default function Root() {
     const [posts, setPosts] = useState<Post[]>()
 
     const [page, setPage] = useState(1)
+
+    const [pagePosts, setPagePosts] = useState<Post[]>()
 
 
     const goToNextPage = useCallback(() => {
@@ -32,20 +36,28 @@ export default function Root() {
         getPosts().catch(e => console.log(e))
     }, [])
 
+    useEffect(() => {
+        const POSTS_ON_PAGE = 10
+        const getPaginatedPosts = async () => {
+            setPagePosts(posts?.slice((page * POSTS_ON_PAGE) - 10, (page * POSTS_ON_PAGE)))
+        }
+        getPaginatedPosts()
+    }, [page, posts]);
+
     return (
         <>
-           <div>
-               {posts === undefined
-                   ? <div>Loading</div>
-                       : posts.map((post) =>
-                       <div key={post.id}>
-                           {post.title}
-                           <Link to={`posts/${post.id}`}>Go to post</Link>
-                       </div>)
-               }
-               <button onClick={() => goToNextPage()}>Next</button>
-               <button onClick={() => goToPrevPage()}>Prev</button>
-           </div>
+            <Container>
+                <PostList>
+                    {pagePosts === undefined
+                        ? <div>Loading</div>
+                        : pagePosts.map((post) =>
+                            <PostListItem id={post.id} title={post.title} key={post.id}/>)
+                    }
+                    <button disabled={page < 2} onClick={() => goToPrevPage()}>Prev</button>
+                    {page}
+                    <button disabled={posts === undefined ? true : page + 1 > posts?.length / 10} onClick={() => goToNextPage()}>Next</button>
+                </PostList>
+            </Container>
         </>
     );
 }
